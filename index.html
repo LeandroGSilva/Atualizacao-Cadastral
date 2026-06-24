@@ -913,102 +913,41 @@ function updateObjetivo(i,field,val) {
 
 // ---- STEP 4: Rendas e Despesas ----
 function renderStep3() {
-  if (!formData.rendas) formData.rendas = [];
-  if (!formData.despesas) formData.despesas = [];
-  const categoriaRenda = ['Salário','Bônus','Aluguel','Rendimento','Venda','Pensão alimentícia','Comissão','Outros'];
-  const categoriaDespesa = ['Moradia','Alimentação','Transporte','Saúde','Educação','Lazer','Contas fixas','Dívidas','Impostos','Outros'];
-
-  const membros = ['Você', ...(formData.familiares||[]).map(f => f.nome||'Familiar').filter(Boolean)];
+  if (!formData.rendas) formData.rendas = [{}];
+  if (!formData.despesas) formData.despesas = [{}];
 
   return `
     <div class="section-card">
       <div class="section-badge">💰 Etapa 3 de 4</div>
       <h2 class="section-title">Rendas & Despesas</h2>
-      <p class="section-desc">Mapeie o orçamento mensal da família. Para cada membro, vincule suas fontes de renda e seus gastos mensais. Estimativas são bem-vindas.</p>
+      <p class="section-desc">Informe sua renda mensal líquida e suas despesas mensais totais. Estimativas são bem-vindas.</p>
 
-      <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:16px;color:var(--dark);">📈 Fontes de Renda</h3>
-      <div class="repeat-container" id="rendasContainer">
-        ${formData.rendas.map((r,i) => renderRenda(i,r,membros,categoriaRenda)).join('')}
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:16px;color:var(--dark);">📈 Renda Mensal Líquida</h3>
+      <div class="field">
+        <label>Valor total de renda mensal líquida</label>
+        <div class="money-wrap">
+          <span class="money-prefix">R$</span>
+          <input type="number" id="rendaTotal" placeholder="0,00" value="${formData.rendaTotal||''}" onchange="formData.rendaTotal=this.value">
+        </div>
       </div>
-      <button class="add-btn" onclick="addRenda()">+ Adicionar fonte de renda</button>
 
       <hr class="divider">
 
-      <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:16px;color:var(--dark);">📉 Despesas Mensais</h3>
-      <div class="repeat-container" id="despesasContainer">
-        ${formData.despesas.map((d,i) => renderDespesa(i,d,membros,categoriaDespesa)).join('')}
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:16px;color:var(--dark);">📉 Despesa Mensal Total</h3>
+      <div class="field">
+        <label>Valor total de despesas mensais</label>
+        <div class="money-wrap">
+          <span class="money-prefix">R$</span>
+          <input type="number" id="despesaTotal" placeholder="0,00" value="${formData.despesaTotal||''}" onchange="formData.despesaTotal=this.value">
+        </div>
       </div>
-      <button class="add-btn" onclick="addDespesa()">+ Adicionar despesa</button>
 
       ${navButtons(false)}
     </div>`;
 }
 
-function renderRenda(i, r={}, membros=[], cats=[]) {
-  return `
-    <div class="repeat-item" id="renda-${i}">
-      <div class="repeat-item-header">
-        <span class="repeat-item-title">Renda ${i+1}</span>
-        <button class="remove-btn" onclick="removeRenda(${i})">Remover</button>
-      </div>
-      <div class="form-grid thirds">
-        <div class="field">
-          <label>Responsável</label>
-          <select onchange="updateRenda(${i},'responsavel',this.value)">
-            <option value="">Selecione...</option>
-            ${membros.map(m=>`<option value="${m}" ${r.responsavel===m?'selected':''}>${m}</option>`).join('')}
-          </select>
-        </div>
-        <div class="field">
-          <label>Categoria</label>
-          <select onchange="updateRenda(${i},'categoria',this.value)">
-            <option value="">Selecione...</option>
-            ${cats.map(c=>`<option value="${c}" ${r.categoria===c?'selected':''}>${c}</option>`).join('')}
-          </select>
-        </div>
-        <div class="field">
-          <label>Valor líquido mensal</label>
-          <div class="money-wrap">
-            <span class="money-prefix">R$</span>
-            <input type="number" placeholder="0,00" value="${r.valor||''}" onchange="updateRenda(${i},'valor',this.value)">
-          </div>
-        </div>
-      </div>
-    </div>`;
-}
-
-function renderDespesa(i, d={}, membros=[], cats=[]) {
-  return `
-    <div class="repeat-item" id="despesa-${i}">
-      <div class="repeat-item-header">
-        <span class="repeat-item-title">Despesa ${i+1}</span>
-        <button class="remove-btn" onclick="removeDespesa(${i})">Remover</button>
-      </div>
-      <div class="form-grid thirds">
-        <div class="field">
-          <label>Responsável</label>
-          <select onchange="updateDespesa(${i},'responsavel',this.value)">
-            <option value="">Selecione...</option>
-            ${membros.map(m=>`<option value="${m}" ${d.responsavel===m?'selected':''}>${m}</option>`).join('')}
-          </select>
-        </div>
-        <div class="field">
-          <label>Categoria</label>
-          <select onchange="updateDespesa(${i},'categoria',this.value)">
-            <option value="">Selecione...</option>
-            ${cats.map(c=>`<option value="${c}" ${d.categoria===c?'selected':''}>${c}</option>`).join('')}
-          </select>
-        </div>
-        <div class="field">
-          <label>Valor mensal</label>
-          <div class="money-wrap">
-            <span class="money-prefix">R$</span>
-            <input type="number" placeholder="0,00" value="${d.valor||''}" onchange="updateDespesa(${i},'valor',this.value)">
-          </div>
-        </div>
-      </div>
-    </div>`;
-}
+function renderRenda(i, r={}, membros=[], cats=[]) { return ''; }
+function renderDespesa(i, d={}, membros=[], cats=[]) { return ''; }
 
 function addRenda() { formData.rendas.push({}); rerenderSection(); }
 function removeRenda(i) { formData.rendas.splice(i,1); rerenderSection(); }
@@ -1019,255 +958,35 @@ function updateDespesa(i,f,v) { if(!formData.despesas[i]) formData.despesas[i]={
 
 // ---- STEP 5: Patrimônio ----
 function renderStep4() {
-  if (!formData.invNacionais) formData.invNacionais = [];
-  if (!formData.invGlobais) formData.invGlobais = [];
-  if (!formData.imoveis) formData.imoveis = [];
-  if (!formData.veiculos) formData.veiculos = [];
-  if (!formData.participacoes) formData.participacoes = [];
-  const tiposInv = ['Tesouro Direto','CDB','LCI/LCA','Poupança','Ações','Fundos','Previdência','ETF','Outros'];
-
   return `
     <div class="section-card">
       <div class="section-badge">🏛️ Etapa 4 de 4</div>
       <h2 class="section-title">Bens & Patrimônio</h2>
-      <p class="section-desc">Mapeie seus ativos: investimentos, imóveis, veículos e participações societárias. Use valores aproximados de mercado.</p>
+      <p class="section-desc">Informe o valor aproximado dos seus ativos. Estimativas são bem-vindas.</p>
 
-      <!-- INVESTIMENTOS NACIONAIS -->
-      <h3 style="font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:12px;">🇧🇷 Investimentos Nacionais (outras instituições)</h3>
-      <div class="repeat-container" id="invNacionaisContainer">
-        ${formData.invNacionais.map((inv,i) => `
-          <div class="repeat-item" id="invN-${i}">
-            <div class="repeat-item-header">
-              <span class="repeat-item-title">Investimento ${i+1}</span>
-              <button class="remove-btn" onclick="removeInvN(${i})">Remover</button>
-            </div>
-            <div class="form-grid thirds">
-              <div class="field">
-                <label>Data de referência</label>
-                <input type="month" value="${inv.data||''}" onchange="updateInvN(${i},'data',this.value)">
-              </div>
-              <div class="field">
-                <label>Tipo de investimento</label>
-                <select onchange="updateInvN(${i},'tipo',this.value)">
-                  <option value="">Selecione...</option>
-                  ${tiposInv.map(t=>`<option value="${t}" ${inv.tipo===t?'selected':''}>${t}</option>`).join('')}
-                </select>
-              </div>
-              <div class="field">
-                <label>Instituição financeira</label>
-                <input type="text" placeholder="Banco, corretora..." value="${inv.inst||''}" onchange="updateInvN(${i},'inst',this.value)">
-              </div>
-              <div class="field span3">
-                <label>Patrimônio investido</label>
-                <div class="money-wrap">
-                  <span class="money-prefix">R$</span>
-                  <input type="number" placeholder="0,00" value="${inv.valor||''}" onchange="updateInvN(${i},'valor',this.value)">
-                </div>
-              </div>
-            </div>
-          </div>`).join('')}
+      <div class="field" style="margin-bottom:20px;">
+        <label>🇧🇷 Investimentos Nacionais (outras instituições)</label>
+        <div class="money-wrap">
+          <span class="money-prefix">R$</span>
+          <input type="number" id="invNacTotal" placeholder="0,00" value="${formData.invNacTotal||''}" onchange="formData.invNacTotal=this.value">
+        </div>
       </div>
-      <button class="add-btn" onclick="addInvN()">+ Adicionar investimento nacional</button>
 
-      <hr class="divider">
-
-      <!-- INVESTIMENTOS GLOBAIS -->
-      <h3 style="font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:8px;">🌎 Investimentos Globais (outras instituições)</h3>
-      <p style="font-size:0.83rem;color:var(--gray);margin-bottom:12px;">A soma dos percentuais deve totalizar 100%.</p>
-      <div class="repeat-container" id="invGlobaisContainer">
-        ${formData.invGlobais.map((inv,i) => `
-          <div class="repeat-item" id="invG-${i}">
-            <div class="repeat-item-header">
-              <span class="repeat-item-title">Investimento Global ${i+1}</span>
-              <button class="remove-btn" onclick="removeInvG(${i})">Remover</button>
-            </div>
-            <div class="form-grid">
-              <div class="field">
-                <label>Data de referência</label>
-                <input type="month" value="${inv.data||''}" onchange="updateInvG(${i},'data',this.value)">
-              </div>
-              <div class="field">
-                <label>Instituição financeira</label>
-                <input type="text" placeholder="Ex: Interactive Brokers" value="${inv.inst||''}" onchange="updateInvG(${i},'inst',this.value)">
-              </div>
-              <div class="field span2">
-                <label>Patrimônio investido (US$)</label>
-                <div class="money-wrap">
-                  <span class="money-prefix">US$</span>
-                  <input type="number" placeholder="0,00" value="${inv.valor||''}" onchange="updateInvG(${i},'valor',this.value)">
-                </div>
-              </div>
-            </div>
-            <div class="form-grid thirds" style="margin-top:12px;">
-              ${['CDs','Mutual Funds','Treasury','Bonds','Equities','Cash','Structured Notes'].map(cat => `
-                <div class="field">
-                  <label>${cat}</label>
-                  <div class="pct-wrap">
-                    <input type="number" min="0" max="100" placeholder="0" value="${inv[cat]||''}" onchange="updateInvG(${i},'${cat}',this.value)">
-                    <span class="pct-suffix">%</span>
-                  </div>
-                </div>`).join('')}
-            </div>
-          </div>`).join('')}
+      <div class="field" style="margin-bottom:20px;">
+        <label>🌎 Investimentos Globais (outras instituições)</label>
+        <div class="money-wrap">
+          <span class="money-prefix">US$</span>
+          <input type="number" id="invGlobTotal" placeholder="0,00" value="${formData.invGlobTotal||''}" onchange="formData.invGlobTotal=this.value">
+        </div>
       </div>
-      <button class="add-btn" onclick="addInvG()">+ Adicionar investimento global</button>
 
-      <hr class="divider">
-
-      <!-- IMÓVEIS -->
-      <h3 style="font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:12px;">🏠 Imóveis</h3>
-      <div class="repeat-container" id="imoveisContainer">
-        ${formData.imoveis.map((im,i) => `
-          <div class="repeat-item" id="imovel-${i}">
-            <div class="repeat-item-header">
-              <span class="repeat-item-title">Imóvel ${i+1}</span>
-              <button class="remove-btn" onclick="removeImovel(${i})">Remover</button>
-            </div>
-            <div class="form-grid">
-              <div class="field span2">
-                <label>Localização (Estado e Cidade)</label>
-                <input type="text" placeholder="Ex: SP - São Paulo" value="${im.local||''}" onchange="updateImovel(${i},'local',this.value)">
-              </div>
-              <div class="field">
-                <label>Valor estimado de mercado</label>
-                <div class="money-wrap">
-                  <span class="money-prefix">R$</span>
-                  <input type="number" placeholder="0,00" value="${im.valor||''}" onchange="updateImovel(${i},'valor',this.value)">
-                </div>
-              </div>
-              <div class="field">
-                <label>Está financiado?</label>
-                <select onchange="updateImovel(${i},'financiado',this.value)">
-                  <option value="">Selecione...</option>
-                  <option value="Não" ${im.financiado==='Não'?'selected':''}>Não</option>
-                  <option value="Sim" ${im.financiado==='Sim'?'selected':''}>Sim</option>
-                </select>
-              </div>
-              ${im.financiado==='Sim'?`
-              <div class="field span2">
-                <label>Data de quitação prevista</label>
-                <input type="month" value="${im.quitacao||''}" onchange="updateImovel(${i},'quitacao',this.value)">
-              </div>`:''}
-              <div class="field">
-                <label>Adquirido após a união?</label>
-                <select onchange="updateImovel(${i},'aposUniao',this.value)">
-                  <option value="">Selecione...</option>
-                  <option value="Sim" ${im.aposUniao==='Sim'?'selected':''}>Sim</option>
-                  <option value="Não" ${im.aposUniao==='Não'?'selected':''}>Não</option>
-                  <option value="Não se aplica" ${im.aposUniao==='Não se aplica'?'selected':''}>Não se aplica</option>
-                </select>
-              </div>
-              <div class="field">
-                <label>Sua participação (%)</label>
-                <div class="pct-wrap">
-                  <input type="number" min="0" max="100" placeholder="100" value="${im.participacao||''}" onchange="updateImovel(${i},'participacao',this.value)">
-                  <span class="pct-suffix">%</span>
-                </div>
-              </div>
-            </div>
-          </div>`).join('')}
+      <div class="field">
+        <label>🏠 Imóveis — Valor total estimado</label>
+        <div class="money-wrap">
+          <span class="money-prefix">R$</span>
+          <input type="number" id="imoveisTotal" placeholder="0,00" value="${formData.imoveisTotal||''}" onchange="formData.imoveisTotal=this.value">
+        </div>
       </div>
-      <button class="add-btn" onclick="addImovel()">+ Adicionar imóvel</button>
-
-      <hr class="divider">
-
-      <!-- VEÍCULOS -->
-      <h3 style="font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:12px;">🚗 Veículos</h3>
-      <div class="repeat-container" id="veiculosContainer">
-        ${formData.veiculos.map((v,i) => `
-          <div class="repeat-item" id="veiculo-${i}">
-            <div class="repeat-item-header">
-              <span class="repeat-item-title">Veículo ${i+1}</span>
-              <button class="remove-btn" onclick="removeVeiculo(${i})">Remover</button>
-            </div>
-            <div class="form-grid">
-              <div class="field span2">
-                <label>Descrição</label>
-                <input type="text" placeholder="Ex: Honda Civic 2022, Preto" value="${v.desc||''}" onchange="updateVeiculo(${i},'desc',this.value)">
-              </div>
-              <div class="field">
-                <label>Tipo</label>
-                <select onchange="updateVeiculo(${i},'tipo',this.value)">
-                  <option value="">Selecione...</option>
-                  ${['Carro','Moto','Caminhão','Trator','Ônibus','Van','Outro'].map(t=>`<option value="${t}" ${v.tipo===t?'selected':''}>${t}</option>`).join('')}
-                </select>
-              </div>
-              <div class="field">
-                <label>Valor estimado</label>
-                <div class="money-wrap">
-                  <span class="money-prefix">R$</span>
-                  <input type="number" placeholder="0,00" value="${v.valor||''}" onchange="updateVeiculo(${i},'valor',this.value)">
-                </div>
-              </div>
-              <div class="field">
-                <label>Financiado?</label>
-                <select onchange="updateVeiculo(${i},'financiado',this.value)">
-                  <option value="">Selecione...</option>
-                  <option value="Não" ${v.financiado==='Não'?'selected':''}>Não</option>
-                  <option value="Sim" ${v.financiado==='Sim'?'selected':''}>Sim</option>
-                </select>
-              </div>
-              <div class="field">
-                <label>Adquirido após a união?</label>
-                <select onchange="updateVeiculo(${i},'aposUniao',this.value)">
-                  <option value="">Selecione...</option>
-                  <option value="Sim" ${v.aposUniao==='Sim'?'selected':''}>Sim</option>
-                  <option value="Não" ${v.aposUniao==='Não'?'selected':''}>Não</option>
-                  <option value="Não se aplica" ${v.aposUniao==='Não se aplica'?'selected':''}>Não se aplica</option>
-                </select>
-              </div>
-            </div>
-          </div>`).join('')}
-      </div>
-      <button class="add-btn" onclick="addVeiculo()">+ Adicionar veículo</button>
-
-      <hr class="divider">
-
-      <!-- PARTICIPAÇÕES -->
-      <h3 style="font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:12px;">🏢 Participações Societárias</h3>
-      <div class="repeat-container" id="participacoesContainer">
-        ${formData.participacoes.map((p,i) => `
-          <div class="repeat-item" id="part-${i}">
-            <div class="repeat-item-header">
-              <span class="repeat-item-title">Empresa ${i+1}</span>
-              <button class="remove-btn" onclick="removeParticipacao(${i})">Remover</button>
-            </div>
-            <div class="form-grid">
-              <div class="field">
-                <label>Nome da empresa</label>
-                <input type="text" placeholder="Nome da empresa" value="${p.nome||''}" onchange="updateParticipacao(${i},'nome',this.value)">
-              </div>
-              <div class="field">
-                <label>CNPJ</label>
-                <input type="text" placeholder="00.000.000/0001-00" value="${p.cnpj||''}" onchange="updateParticipacao(${i},'cnpj',this.value)">
-              </div>
-              <div class="field">
-                <label>Valor estimado da empresa</label>
-                <div class="money-wrap">
-                  <span class="money-prefix">R$</span>
-                  <input type="number" placeholder="0,00" value="${p.valor||''}" onchange="updateParticipacao(${i},'valor',this.value)">
-                </div>
-              </div>
-              <div class="field">
-                <label>Sua participação (%)</label>
-                <div class="pct-wrap">
-                  <input type="number" min="0" max="100" placeholder="50" value="${p.participacao||''}" onchange="updateParticipacao(${i},'participacao',this.value)">
-                  <span class="pct-suffix">%</span>
-                </div>
-              </div>
-              <div class="field span2">
-                <label>Participação adquirida após a união?</label>
-                <select onchange="updateParticipacao(${i},'aposUniao',this.value)">
-                  <option value="">Selecione...</option>
-                  <option value="Sim" ${p.aposUniao==='Sim'?'selected':''}>Sim</option>
-                  <option value="Não" ${p.aposUniao==='Não'?'selected':''}>Não</option>
-                  <option value="Não se aplica" ${p.aposUniao==='Não se aplica'?'selected':''}>Não se aplica</option>
-                </select>
-              </div>
-            </div>
-          </div>`).join('')}
-      </div>
-      <button class="add-btn" onclick="addParticipacao()">+ Adicionar participação societária</button>
 
       ${navButtons(true)}
     </div>`;
@@ -1406,66 +1125,18 @@ function submitForm() {
   }
   msg += '\n';
 
-  msg += '*RENDAS MENSAIS*\n';
-  if(d.rendas && d.rendas.length > 0) {
-    d.rendas.forEach((r,i) => {
-      msg += `• ${r.responsavel||'—'} | ${r.categoria||'—'} | ${formatMoney(r.valor)}\n`;
-    });
-  } else { msg += '• Nenhuma renda informada\n'; }
+  msg += '*RENDAS & DESPESAS*\n';
+  msg += `• Renda mensal liquida: ${formatMoney(d.rendaTotal)}\n`;
+  msg += `• Despesa mensal total: ${formatMoney(d.despesaTotal)}\n`;
   msg += '\n';
 
-  msg += '*DESPESAS MENSAIS*\n';
-  if(d.despesas && d.despesas.length > 0) {
-    d.despesas.forEach((e,i) => {
-      msg += `• ${e.responsavel||'—'} | ${e.categoria||'—'} | ${formatMoney(e.valor)}\n`;
-    });
-  } else { msg += '• Nenhuma despesa informada\n'; }
-  msg += '\n';
-
-  msg += '*INVESTIMENTOS NACIONAIS*\n';
-  if(d.invNacionais && d.invNacionais.length > 0) {
-    d.invNacionais.forEach((inv,i) => {
-      msg += `• ${inv.tipo||'—'} | ${inv.inst||'—'} | ${formatMoney(inv.valor)} | Ref: ${inv.data||'—'}\n`;
-    });
-  } else { msg += '• Nenhum informado\n'; }
-  msg += '\n';
-
-  msg += '*INVESTIMENTOS GLOBAIS*\n';
-  if(d.invGlobais && d.invGlobais.length > 0) {
-    d.invGlobais.forEach((inv,i) => {
-      msg += `• ${inv.inst||'—'} | US$ ${inv.valor||'—'} | Ref: ${inv.data||'—'}\n`;
-      const cats = ['CDs','Mutual Funds','Treasury','Bonds','Equities','Cash','Structured Notes'];
-      const pcts = cats.filter(c=>inv[c]).map(c=>`${c}: ${inv[c]}%`).join(', ');
-      if(pcts) msg += `  Alocacao: ${pcts}\n`;
-    });
-  } else { msg += '• Nenhum informado\n'; }
-  msg += '\n';
-
-  msg += '*IMOVEIS*\n';
-  if(d.imoveis && d.imoveis.length > 0) {
-    d.imoveis.forEach((im,i) => {
-      msg += `• ${im.local||'—'} | ${formatMoney(im.valor)} | Financiado: ${im.financiado||'—'} | Participacao: ${im.participacao||'—'}%\n`;
-    });
-  } else { msg += '• Nenhum informado\n'; }
-  msg += '\n';
-
-  msg += '*VEICULOS*\n';
-  if(d.veiculos && d.veiculos.length > 0) {
-    d.veiculos.forEach((v,i) => {
-      msg += `• ${v.desc||'—'} (${v.tipo||'—'}) | ${formatMoney(v.valor)} | Financiado: ${v.financiado||'—'}\n`;
-    });
-  } else { msg += '• Nenhum informado\n'; }
-  msg += '\n';
-
-  msg += '*PARTICIPACOES SOCIETARIAS*\n';
-  if(d.participacoes && d.participacoes.length > 0) {
-    d.participacoes.forEach((p,i) => {
-      msg += `• ${p.nome||'—'} | CNPJ: ${p.cnpj||'—'} | ${formatMoney(p.valor)} | ${p.participacao||'—'}%\n`;
-    });
-  } else { msg += '• Nenhuma informada\n'; }
+  msg += '*BENS & PATRIMONIO*\n';
+  msg += `• Investimentos Nacionais: ${formatMoney(d.invNacTotal)}\n`;
+  msg += `• Investimentos Globais: US$ ${d.invGlobTotal||'—'}\n`;
+  msg += `• Imoveis: ${formatMoney(d.imoveisTotal)}\n`;
 
   msg += '\n========================\n';
-  msg += 'Mapeamento financeiro concluido.';
+  msg += 'Atualizacao cadastral concluida.';
 
   const urlParams = new URLSearchParams(window.location.search);
   const assessorNome = urlParams.get('nome') ? decodeURIComponent(urlParams.get('nome')) : 'Assessor';
